@@ -1,3 +1,6 @@
+# An adaptation from https://github.com/ieee8023/NeuralNetwork-Examples/blob/master/theano/counting/count-ception.ipynb
+
+
 import pickle
 from keras.layers import Conv2D, BatchNormalization, Input, concatenate
 # from keras.layers import Dense, Activation, Lambda, Conv2D, MaxPool2D, Flatten, BatchNormalization, Input, concatenate
