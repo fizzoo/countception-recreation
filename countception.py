@@ -1,6 +1,4 @@
 # An adaptation from https://github.com/ieee8023/NeuralNetwork-Examples/blob/master/theano/counting/count-ception.ipynb
-
-
 import pickle
 from keras.layers import Conv2D, BatchNormalization, Input, concatenate
 # from keras.layers import Dense, Activation, Lambda, Conv2D, MaxPool2D, Flatten, BatchNormalization, Input, concatenate
@@ -12,6 +10,10 @@ import scipy.misc
 import sys
 import glob
 import os
+import random
+import matplotlib
+import matplotlib.pyplot as plt
+
 
 scale = 1
 patch_size = 32
@@ -112,6 +114,47 @@ else:
 print("DONE")
 
 
+'''
+'''
+
+np_dataset = np.asarray(dataset)
+
+random.shuffle(np_dataset)
+
+# TODO: KANSKE SKA CASTAS TILL FLOAT !!!!!!
+np_dataset = np.rollaxis(np_dataset,1,0)
+np_dataset_x = np.asarray([[n] for n in np_dataset[0]])
+np_dataset_y = np.asarray([n for n in np_dataset[1]])
+np_dataset_c = np.asarray([n for n in np_dataset[2]])
+
+print("np_dataset_x", np_dataset_x.shape)
+print("np_dataset_y", np_dataset_y.shape)
+print("np_dataset_c", np_dataset_c.shape)
+
+del np_dataset
+
+length = len(np_dataset_x)
+
+n = nsamples
+
+np_dataset_x_train = np_dataset_x[0:n]
+np_dataset_y_train = np_dataset_y[0:n]
+np_dataset_c_train = np_dataset_c[0:n]
+print("np_dataset_x_train", len(np_dataset_x_train))
+
+np_dataset_x_valid = np_dataset_x[n:2*n]
+np_dataset_y_valid = np_dataset_y[n:2*n]
+np_dataset_c_valid = np_dataset_c[n:2*n]
+print("np_dataset_x_valid", len(np_dataset_x_valid))
+
+np_dataset_x_test = np_dataset_x[100:]
+np_dataset_y_test = np_dataset_y[100:]
+np_dataset_c_test = np_dataset_c[100:]
+print("np_dataset_x_test", len(np_dataset_x_test))
+print(np_dataset_x_train [:4,0].shape)
+
+# Keras stuff
+
 def SimpleFactory(ch_1x1, ch_3x3, inp):
     conv1x1 = Conv2D(filters=ch_1x1, kernel_size=1,
                      padding='same', activation=LeakyReLU(0.01))(inp)
@@ -126,11 +169,9 @@ bn = BatchNormalization(axis=1, input_shape=(64, 64, 3))(inputs)
 c1 = Conv2D(64, (1, 1), padding='same', activation='relu')(bn)
 conc = SimpleFactory(16, 16, c1)
 
+batch_size = 32
+epochs = 25
 
-print(bn.get_shape())
-print(c1.get_shape())
-print(conc.get_shape())
+model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
+model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size)
 
-# model.add()x2 = conv1x1(x1)
-# model.add()y2 = conv3x3(x1)
-# model.add()x3 = concatenate(x2, y2)
