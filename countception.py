@@ -3,6 +3,7 @@ import pickle
 from keras.layers import Conv2D, BatchNormalization, Input, concatenate
 # from keras.layers import Dense, Activation, Lambda, Conv2D, MaxPool2D, Flatten, BatchNormalization, Input, concatenate
 from keras.layers.advanced_activations import LeakyReLU
+import keras.models
 # from keras.datasets import cifar10
 import numpy as np
 from skimage.io import imread  #, imsave
@@ -163,15 +164,16 @@ def SimpleFactory(ch_1x1, ch_3x3, inp):
     return concatenate([conv1x1, conv3x3])
 
 
-inputs = Input(shape=(64, 64, 3))
+inputs = Input(shape=(1, 256, 256))
 
-bn = BatchNormalization(axis=1, input_shape=(64, 64, 3))(inputs)
+bn = BatchNormalization(axis=1)(inputs)
 c1 = Conv2D(64, (1, 1), padding='same', activation='relu')(bn)
 conc = SimpleFactory(16, 16, c1)
 
 batch_size = 32
 epochs = 25
 
+model = keras.models.Model(inputs=inputs, outputs=conc)
 model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
 model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size)
 
