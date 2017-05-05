@@ -124,8 +124,8 @@ random.shuffle(np_dataset)
 
 # TODO: KANSKE SKA CASTAS TILL FLOAT !!!!!!
 np_dataset = np.rollaxis(np_dataset,1,0)
-np_dataset_x = np.asarray([np.reshape(n, (256, 256, 1)) for n in np_dataset[0]]) #TODO: HÅRDKOD
-np_dataset_y = np.asarray([np.reshape(n, (289, 289, 1)) for n in np_dataset[1]])
+np_dataset_x = np.asarray([np.transpose(np.asarray([n]), (1,2,0)) for n in np_dataset[0]])
+np_dataset_y = np.asarray([np.transpose(n, (1,2,0)) for n in np_dataset[1]])
 np_dataset_c = np.asarray([n for n in np_dataset[2]])
 
 print("np_dataset_x", np_dataset_x.shape)
@@ -175,13 +175,35 @@ inputs = Input(shape=(256, 256, 1))
 print("inputs:", inputs.shape)
 c1 = ConvFactory(64, 3, patch_size, inputs)
 print("c1:", c1.shape)
-conc = SimpleFactory(16, 16, c1)
-print("conc:", conc.shape)
+net = SimpleFactory(16, 16, c1)
+print("net:", net.shape)
+net = SimpleFactory(16, 32, net)
+print("net:", net.shape)
+net = ConvFactory(16, 14, 0, net)
+print("net:", net.shape)
+net = SimpleFactory(112, 48, net)
+print("net:", net.shape)
+net = SimpleFactory(64, 32, net)
+print("net:", net.shape)
+net = SimpleFactory(40, 40, net)
+print("net:", net.shape)
+net = SimpleFactory(32, 96, net)
+print("net:", net.shape)
+net = ConvFactory(32, 17, 0, net)
+print("net:", net.shape)
+net = ConvFactory(64, 1, 0, net)
+print("net:", net.shape)
+net = ConvFactory(64, 1, 0, net)
+print("net:", net.shape)
+net = ConvFactory(1, 1, 0, net)
+print("net:", net.shape)
+
+
 
 batch_size = 32
 epochs = 25
 
-model = keras.models.Model(inputs=inputs, outputs=conc)
+model = keras.models.Model(inputs=inputs, outputs=net)
 model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
 model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size)
 
