@@ -1,6 +1,6 @@
 # An adaptation from https://github.com/ieee8023/NeuralNetwork-Examples/blob/master/theano/counting/count-ception.ipynb
 import pickle
-from keras.layers import Conv2D, BatchNormalization, Input, concatenate
+from keras.layers import Conv2D, BatchNormalization, Input, concatenate, ZeroPadding2D
 # from keras.layers import Dense, Activation, Lambda, Conv2D, MaxPool2D, Flatten, BatchNormalization, Input, concatenate
 from keras.layers.advanced_activations import LeakyReLU
 import keras.models
@@ -124,8 +124,8 @@ random.shuffle(np_dataset)
 
 # TODO: KANSKE SKA CASTAS TILL FLOAT !!!!!!
 np_dataset = np.rollaxis(np_dataset,1,0)
-np_dataset_x = np.asarray([[n] for n in np_dataset[0]])
-np_dataset_y = np.asarray([n for n in np_dataset[1]])
+np_dataset_x = np.asarray([np.reshape(n, (256, 256, 1)) for n in np_dataset[0]]) #TODO: HÅRDKOD
+np_dataset_y = np.asarray([np.reshape(n, (289, 289, 1)) for n in np_dataset[1]])
 np_dataset_c = np.asarray([n for n in np_dataset[2]])
 
 print("np_dataset_x", np_dataset_x.shape)
@@ -156,19 +156,27 @@ print(np_dataset_x_train [:4,0].shape)
 
 # Keras stuff
 
+def ConvFactory(filters, kernel_size, padding, inp, padding_type='valid', activation=LeakyReLU(0.01)):
+    padded = ZeroPadding2D(padding)(inp)
+    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, activation=activation)(padded)
+    bn = BatchNormalization(axis=1)(conv)
+    return bn
+
 def SimpleFactory(ch_1x1, ch_3x3, inp):
-    conv1x1 = Conv2D(filters=ch_1x1, kernel_size=1,
-                     padding='same', activation=LeakyReLU(0.01))(inp)
-    conv3x3 = Conv2D(filters=ch_3x3, kernel_size=3,
-                     padding='same', activation=LeakyReLU(0.01))(inp)
+    conv1x1 = ConvFactory(ch_1x1, 1, 0, inp)
+    conv3x3 = ConvFactory(ch_3x3, 3, 1, inp)
     return concatenate([conv1x1, conv3x3])
 
+print('#'*80)
+print('# Building model...')
+print('#'*80)
 
-inputs = Input(shape=(1, 256, 256))
-
-bn = BatchNormalization(axis=1)(inputs)
-c1 = Conv2D(64, (1, 1), padding='same', activation='relu')(bn)
+inputs = Input(shape=(256, 256, 1))
+print("inputs:", inputs.shape)
+c1 = ConvFactory(64, 3, patch_size, inputs)
+print("c1:", c1.shape)
 conc = SimpleFactory(16, 16, c1)
+print("conc:", conc.shape)
 
 batch_size = 32
 epochs = 25
