@@ -154,12 +154,15 @@ np_dataset_c_test = np_dataset_c[100:]
 print("np_dataset_x_test", len(np_dataset_x_test))
 print(np_dataset_x_train [:4,0].shape)
 
+plt.rcParams['figure.figsize'] = (15, 5)
+
 # Keras stuff
 
 def ConvFactory(filters, kernel_size, padding, inp, padding_type='valid', activation=LeakyReLU(0.01)):
     padded = ZeroPadding2D(padding)(inp)
-    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, activation=activation)(padded)
-    bn = BatchNormalization(axis=1)(conv)
+    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type)(padded)
+    acti = LeakyReLU(0.01)(conv)
+    bn = BatchNormalization(axis=1)(acti)
     return bn
 
 def SimpleFactory(ch_1x1, ch_3x3, inp):
@@ -200,10 +203,15 @@ print("net:", net.shape)
 
 
 
-batch_size = 32
-epochs = 25
+batch_size = 4
+epochs = 1000
 
 model = keras.models.Model(inputs=inputs, outputs=net)
-model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
-model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size)
+model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
+hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
+                 validation_data = (np_dataset_x_valid, np_dataset_y_valid))
 
+
+model.save('model.h5')
+
+pred = model.predict(np_dataset_x_test, batch_size = batch_size, verbose = 0)
