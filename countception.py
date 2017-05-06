@@ -12,8 +12,6 @@ import sys
 import glob
 import os
 import random
-import matplotlib
-import matplotlib.pyplot as plt
 
 
 scale = 1
@@ -154,8 +152,6 @@ np_dataset_c_test = np_dataset_c[100:]
 print("np_dataset_x_test", len(np_dataset_x_test))
 print(np_dataset_x_train [:4,0].shape)
 
-plt.rcParams['figure.figsize'] = (15, 5)
-
 # Keras stuff
 
 def ConvFactory(filters, kernel_size, padding, inp, padding_type='valid', activation=LeakyReLU(0.01)):
@@ -211,6 +207,8 @@ batch_size = 4
 epochs = 1000
 
 model = keras.models.Model(inputs=inputs, outputs=net)
+print(model.count_params())
+
 model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
 hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
                  validation_data = (np_dataset_x_valid, np_dataset_y_valid))
