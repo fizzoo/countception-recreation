@@ -161,8 +161,13 @@ plt.rcParams['figure.figsize'] = (15, 5)
 def ConvFactory(filters, kernel_size, padding, inp, padding_type='valid', activation=LeakyReLU(0.01)):
     padded = ZeroPadding2D(padding)(inp)
     conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type)(padded)
+<<<<<<< HEAD
     acti = LeakyReLU(0.01)(conv)
     bn = BatchNormalization(axis=1)(acti)
+=======
+    activated = activation(conv)
+    bn = BatchNormalization(axis=1)(activated)
+>>>>>>> fbc7b84afdbdebc264573d395fe86ae05ce6b2cd
     return bn
 
 def SimpleFactory(ch_1x1, ch_3x3, inp):
