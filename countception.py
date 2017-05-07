@@ -1,4 +1,9 @@
 # An adaptation from https://github.com/ieee8023/NeuralNetwork-Examples/blob/master/theano/counting/count-ception.ipynb
+
+import matplotlib
+matplotlib.use('PS')
+import matplotlib.pyplot as plt
+
 import pickle
 from keras.layers import Conv2D, BatchNormalization, Input, concatenate, ZeroPadding2D
 # from keras.layers import Dense, Activation, Lambda, Conv2D, MaxPool2D, Flatten, BatchNormalization, Input, concatenate
@@ -12,7 +17,6 @@ import sys
 import glob
 import os
 import random
-
 
 scale = 1
 patch_size = 32
@@ -212,7 +216,13 @@ def build_model():
 def sum_count_map(m, ef=ef):
     return np.asarray([np.sum(p)/ef for p in m])
 
-TRAIN=True
+def plot_map(m, fil):
+    # m is like (256, 256, 1)
+    a = np.reshape(m, (m.shape[0], m.shape[1]))
+    plt.imshow(a)
+    plt.savefig(fil)
+
+TRAIN=False
 
 if TRAIN:
     batch_size = 2
@@ -229,6 +239,8 @@ else:
     model.load_weights("model.h5", by_name=True)
 
 pred = model.predict(np_dataset_x_test, batch_size=1)
+plot_map(pred[0], "ours")
+plot_map(np_dataset_y_test[0], "theirs")
 preds = sum_count_map(pred)
 tests = np.concatenate(np_dataset_c_test)
 order = np.argsort(tests)
