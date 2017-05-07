@@ -20,6 +20,7 @@ framesize = 256
 noutputs = 1
 nsamples = 32
 stride = 1
+ef = (patch_size/stride)**2
 
 paramfilename = str(scale) + "-" + str(patch_size) + "-cell2_cell_data.p"
 datasetfilename = str(scale) + "-" + str(patch_size) + "-" + str(framesize) + "-" + str(stride) + "-cell2-dataset.p"
@@ -113,9 +114,6 @@ else:
 print("DONE")
 
 
-'''
-'''
-
 np_dataset = np.asarray(dataset)
 
 random.shuffle(np_dataset)
@@ -166,59 +164,67 @@ def SimpleFactory(ch_1x1, ch_3x3, inp):
     conv3x3 = ConvFactory(ch_3x3, 3, 1, inp)
     return concatenate([conv1x1, conv3x3])
 
-print('#'*80)
-print('# Building model...')
-print('#'*80)
 
-inputs = Input(shape=(256, 256, 1))
-print("inputs:", inputs.shape)
-c1 = ConvFactory(64, 3, patch_size, inputs)
-print("c1:", c1.shape)
-net = SimpleFactory(16, 16, c1)
-print("net:", net.shape)
-net = SimpleFactory(16, 32, net)
-print("net:", net.shape)
-net = ConvFactory(16, 14, 0, net)
-print("net:", net.shape)
-net = SimpleFactory(112, 48, net)
-print("net:", net.shape)
-net = SimpleFactory(64, 32, net)
-print("net:", net.shape)
-net = SimpleFactory(40, 40, net)
-print("net:", net.shape)
-net = SimpleFactory(32, 96, net)
-print("net:", net.shape)
-net = ConvFactory(32, 17, 0, net)
-print("net:", net.shape)
-net = ConvFactory(64, 1, 0, net)
-print("net:", net.shape)
-net = ConvFactory(64, 1, 0, net)
-print("net:", net.shape)
-net = ConvFactory(1, 1, 0, net)
-print("net:", net.shape)
+def build_model():
+    print('#'*80)
+    print('# Building model...')
+    print('#'*80)
 
-
-
-batch_size = 1
-epochs = 5
-
-model = keras.models.Model(inputs=inputs, outputs=net)
-print(model.count_params())
-
-model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
-hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
-                 validation_data = (np_dataset_x_valid, np_dataset_y_valid))
+    inputs = Input(shape=(256, 256, 1))
+    print("inputs:", inputs.shape)
+    c1 = ConvFactory(64, 3, patch_size, inputs)
+    print("c1:", c1.shape)
+    net = SimpleFactory(16, 16, c1)
+    print("net:", net.shape)
+    net = SimpleFactory(16, 32, net)
+    print("net:", net.shape)
+    net = ConvFactory(16, 14, 0, net)
+    print("net:", net.shape)
+    net = SimpleFactory(112, 48, net)
+    print("net:", net.shape)
+    net = SimpleFactory(64, 32, net)
+    print("net:", net.shape)
+    net = SimpleFactory(40, 40, net)
+    print("net:", net.shape)
+    net = SimpleFactory(32, 96, net)
+    print("net:", net.shape)
+    net = ConvFactory(32, 17, 0, net)
+    print("net:", net.shape)
+    net = ConvFactory(64, 1, 0, net)
+    print("net:", net.shape)
+    net = ConvFactory(64, 1, 0, net)
+    print("net:", net.shape)
+    net = ConvFactory(1, 1, 0, net)
+    print("net:", net.shape)
 
 
-model.save('model.h5')
 
-ef = (patch_size/stride)**2
+    batch_size = 1
+    epochs = 5
 
-model = keras.models.load_model('model.h5')
+    model = keras.models.Model(inputs=inputs, outputs=net)
+    print(model.count_params())
 
-pred = model.predict(np_dataset_x_test, batch_size = batch_size, verbose = 0)
-pred = np.asarray([np.sum(p)/ef**2 for p in pred])
-print(pred.shape)
-print(pred)
-print(np_dataset_c_test.shape)
-print(np_dataset_c_test)
+    model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
+
+
+TRAIN=False
+
+if TRAIN:
+    model = build_model()
+    hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
+                    validation_data = (np_dataset_x_valid, np_dataset_y_valid))
+
+    model.save('model.h5')
+
+else:
+    batch_size = 1
+
+    model = keras.models.load_model('model.h5')
+
+    pred = model.predict(np_dataset_x_test, batch_size = batch_size, verbose = 0)
+    pred = np.asarray([np.sum(p)/ef**2 for p in pred])
+    print(pred.shape)
+    print(pred)
+    print(np_dataset_c_test.shape)
+    print(np_dataset_c_test)
