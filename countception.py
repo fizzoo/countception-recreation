@@ -204,8 +204,7 @@ def build_model():
     model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
 
 def sum_count_map(m, ef=ef):
-    pred = np.asarray([[np.sum(p)/ef**2 for p in pred]])
-    return pred
+    return np.asarray([[np.sum(p)/ef**2 for p in m]])
 
 TRAIN=False
 
