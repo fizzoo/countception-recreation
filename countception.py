@@ -231,9 +231,10 @@ if TRAIN:
 
     model = build_model()
 
-    checkpointer = ModelCheckpoint(filepath="model-cp.{epoch:02d}-{val_loss:.2f}.h5", verbose=1, period=10, save_weights_only=True)
+    bestcheck = ModelCheckpoint(filepath="model-best.h5", verbose=1, save_weights_only=True, save_best_only=True)
+    every10check = ModelCheckpoint(filepath="model-cp.{epoch:02d}-{val_loss:.2f}.h5", verbose=1, period=10, save_weights_only=True)
     hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
-                     validation_data = (np_dataset_x_valid, np_dataset_y_valid), callbacks=[checkpointer])
+                     validation_data = (np_dataset_x_valid, np_dataset_y_valid), callbacks=[bestcheck, every10check])
 
     model.save_weights('model.h5')
 
