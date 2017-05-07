@@ -198,8 +198,8 @@ def build_model():
     net10 = ConvFactory(64, 1, 0, net9, "net10")
     print("net:", net10.shape)
     # net11 = ConvFactory(1, 1, 0, net10, "net11")
-    final = Conv2D(1, 1, name="final")(net11)
-    print("net:", net11.shape)
+    final = Conv2D(1, 1, name="final")(net10)
+    print("net:", final.shape)
 
 
     model = keras.models.Model(inputs=inputs, outputs=final)
