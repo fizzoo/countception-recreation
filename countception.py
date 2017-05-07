@@ -230,9 +230,7 @@ else:
 
 pred = model.predict(np_dataset_x_test, batch_size=1)
 preds = sum_count_map(pred)
-madetests = sum_count_map(np_dataset_y_test)
 tests = np.concatenate(np_dataset_c_test)
 order = np.argsort(tests)
 print(preds[order])
-print(madetests[order])
 print(tests[order])
