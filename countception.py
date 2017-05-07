@@ -152,11 +152,14 @@ print(np_dataset_x_train [:4,0].shape)
 
 # Keras stuff
 
-def ConvFactory(filters, kernel_size, padding, inp, name, padding_type='valid', activation=LeakyReLU(0.01)):
-    padded = ZeroPadding2D(padding)(inp)
+def ConvFactory(filters, kernel_size, padding, inp, name, padding_type='valid'):
+    if padding != 0:
+        padded = ZeroPadding2D(padding)(inp)
+    else:
+        padded = inp
     conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, name=name+"_conv")(padded)
-    activated = activation(conv)
-    bn = BatchNormalization(axis=3, name=name+"_bn")(activated)
+    activated = LeakyReLU(0.01)(conv)
+    bn = BatchNormalization(name=name+"_bn")(activated)
     return bn
 
 def SimpleFactory(ch_1x1, ch_3x3, inp, name):
@@ -194,11 +197,12 @@ def build_model():
     print("net:", net9.shape)
     net10 = ConvFactory(64, 1, 0, net9, "net10")
     print("net:", net10.shape)
-    net11 = ConvFactory(1, 1, 0, net10, "net11")
+    # net11 = ConvFactory(1, 1, 0, net10, "net11")
+    final = Conv2D(1, 1, name="final")(net11)
     print("net:", net11.shape)
 
 
-    model = keras.models.Model(inputs=inputs, outputs=net11)
+    model = keras.models.Model(inputs=inputs, outputs=final)
     print("Model params:", model.count_params())
 
     model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
