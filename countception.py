@@ -210,7 +210,7 @@ def build_model():
     return model
 
 def sum_count_map(m, ef=ef):
-    return np.asarray([np.sum(p)/(ef**2) for p in m])
+    return np.asarray([np.sum(p)/ef for p in m])
 
 TRAIN=True
 
