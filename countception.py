@@ -173,7 +173,7 @@ def build_model():
     inputs = Input(shape=(256, 256, 1))
     print("inputs:", inputs.shape)
     c1 = ConvFactory(64, 3, patch_size, inputs, "c1")
-    print("c1:", c1.shape)
+    print("c1", c1.shape)
     net1 = SimpleFactory(16, 16, c1, "net1")
     print("net:", net1.shape)
     net2 = SimpleFactory(16, 32, net1, "net2")
@@ -206,32 +206,27 @@ def build_model():
     return model
 
 def sum_count_map(m, ef=ef):
-    return np.asarray([[np.sum(p)/ef**2 for p in m]])
+    return np.asarray([np.sum(p)/ef**2 for p in m])
 
-TRAIN=False
+TRAIN=True
 
 if TRAIN:
-    batch_size = 1
-    epochs = 5
+    batch_size = 2
+    epochs = 1
 
     model = build_model()
     hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
                     validation_data = (np_dataset_x_valid, np_dataset_y_valid))
 
-    pred = model.predict(np_dataset_x_test, batch_size=1)
-    preds = sum_count_map(pred)
-    print(preds)
-
-    model.save('model.h5')
+    model.save_weights('model.h5')
 
 else:
-    batch_size = 1
+    model = build_model()
+    model.load_weights("model.h5", by_name=True)
 
-    model = keras.models.load_model('model.h5')
-
-    pred = model.predict(np_dataset_x_test, batch_size = batch_size, verbose = 0)
-    preds = sum_count_map(pred)
-    print(preds.shape)
-    print(preds)
-    print(np_dataset_c_test.shape)
-    print(np_dataset_c_test)
+pred = model.predict(np_dataset_x_test, batch_size=1)
+preds = sum_count_map(pred)
+tests = np.concatenate(np_dataset_c_test)
+order = np.argsort(tests)
+print(preds[order])
+print(tests[order])
