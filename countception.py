@@ -154,9 +154,9 @@ print(np_dataset_x_train [:4,0].shape)
 
 def ConvFactory(filters, kernel_size, padding, inp, name, padding_type='valid', activation=LeakyReLU(0.01)):
     padded = ZeroPadding2D(padding)(inp)
-    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, name=name)(padded)
+    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, name=name+"_conv")(padded)
     activated = activation(conv)
-    bn = BatchNormalization(axis=3)(activated)
+    bn = BatchNormalization(axis=3, name=name+"_bn")(activated)
     return bn
 
 def SimpleFactory(ch_1x1, ch_3x3, inp, name):
