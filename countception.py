@@ -54,7 +54,7 @@ def getLabelsCells(img, labelPath, base_x, base_y, stride):
     for x in range(0, width):
         for y in range(0, width):
 
-            count = getCellCountCells(markers,(base_x + x*stride, base_y + y*stride, patch_size, patch_size), scale) 
+            count = getCellCountCells(markers,(base_x + x*stride, base_y + y*stride, patch_size, patch_size), scale)
             for i in range(0, noutputs):
                 labels[i][y][x] = count[i]
 
@@ -95,18 +95,18 @@ else:
             for base_y in range(0, img_raw.shape[1], framesize):
                 img, lab, count = getTrainingExampleCells(img_raw, labelPath, base_y, base_x, stride)
                 print("count ", count)
-                
+
                 ef = patch_size/stride
                 lab_est = [(l.sum()/(ef**2)).astype(np.int) for l in lab]
                 print("lab_est", lab_est)
-                
+
                 assert count == lab_est
-                
+
                 dataset.append((img, lab, count))
                 print("img shape", img.shape)
                 print("label shape", lab.shape)
                 sys.stdout.flush()
-                    
+
     print("writing", datasetfilename)
     out = open(datasetfilename, "wb", 0)
     pickle.dump(dataset, out)
@@ -152,16 +152,16 @@ print(np_dataset_x_train [:4,0].shape)
 
 # Keras stuff
 
-def ConvFactory(filters, kernel_size, padding, inp, padding_type='valid', activation=LeakyReLU(0.01)):
+def ConvFactory(filters, kernel_size, padding, inp, name, padding_type='valid', activation=LeakyReLU(0.01)):
     padded = ZeroPadding2D(padding)(inp)
-    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type)(padded)
+    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, name=name)(padded)
     activated = activation(conv)
-    bn = BatchNormalization()(activated)
+    bn = BatchNormalization(axis=3)(activated)
     return bn
 
-def SimpleFactory(ch_1x1, ch_3x3, inp):
-    conv1x1 = ConvFactory(ch_1x1, 1, 0, inp)
-    conv3x3 = ConvFactory(ch_3x3, 3, 1, inp)
+def SimpleFactory(ch_1x1, ch_3x3, inp, name):
+    conv1x1 = ConvFactory(ch_1x1, 1, 0, inp, name + "_1x1")
+    conv3x3 = ConvFactory(ch_3x3, 3, 1, inp, name + "_3x3")
     return concatenate([conv1x1, conv3x3])
 
 
@@ -172,33 +172,33 @@ def build_model():
 
     inputs = Input(shape=(256, 256, 1))
     print("inputs:", inputs.shape)
-    c1 = ConvFactory(64, 3, patch_size, inputs)
+    c1 = ConvFactory(64, 3, patch_size, inputs, "c1")
     print("c1:", c1.shape)
-    net = SimpleFactory(16, 16, c1)
-    print("net:", net.shape)
-    net = SimpleFactory(16, 32, net)
-    print("net:", net.shape)
-    net = ConvFactory(16, 14, 0, net)
-    print("net:", net.shape)
-    net = SimpleFactory(112, 48, net)
-    print("net:", net.shape)
-    net = SimpleFactory(64, 32, net)
-    print("net:", net.shape)
-    net = SimpleFactory(40, 40, net)
-    print("net:", net.shape)
-    net = SimpleFactory(32, 96, net)
-    print("net:", net.shape)
-    net = ConvFactory(32, 17, 0, net)
-    print("net:", net.shape)
-    net = ConvFactory(64, 1, 0, net)
-    print("net:", net.shape)
-    net = ConvFactory(64, 1, 0, net)
-    print("net:", net.shape)
-    net = ConvFactory(1, 1, 0, net)
-    print("net:", net.shape)
+    net1 = SimpleFactory(16, 16, c1, "net1")
+    print("net:", net1.shape)
+    net2 = SimpleFactory(16, 32, net1, "net2")
+    print("net:", net2.shape)
+    net3 = ConvFactory(16, 14, 0, net2, "net3")
+    print("net:", net3.shape)
+    net4 = SimpleFactory(112, 48, net3, "net4")
+    print("net:", net4.shape)
+    net5 = SimpleFactory(64, 32, net4, "net5")
+    print("net:", net5.shape)
+    net6 = SimpleFactory(40, 40, net5, "net6")
+    print("net:", net6.shape)
+    net7 = SimpleFactory(32, 96, net6, "net7")
+    print("net:", net7.shape)
+    net8 = ConvFactory(32, 17, 0, net7, "net8")
+    print("net:", net8.shape)
+    net9 = ConvFactory(64, 1, 0, net8, "net9")
+    print("net:", net9.shape)
+    net10 = ConvFactory(64, 1, 0, net9, "net10")
+    print("net:", net10.shape)
+    net11 = ConvFactory(1, 1, 0, net10, "net11")
+    print("net:", net11.shape)
 
 
-    model = keras.models.Model(inputs=inputs, outputs=net)
+    model = keras.models.Model(inputs=inputs, outputs=net11)
     print("Model params:", model.count_params())
 
     model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
@@ -221,7 +221,7 @@ if TRAIN:
     pred = model.predict(np_dataset_x_test, batch_size=1)
     preds = sum_count_map(pred)
     print(preds)
-    
+
     model.save('model.h5')
 
 else:
