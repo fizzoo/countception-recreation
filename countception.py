@@ -198,23 +198,29 @@ def build_model():
     print("net:", net.shape)
 
 
-
-    batch_size = 1
-    epochs = 5
-
     model = keras.models.Model(inputs=inputs, outputs=net)
-    print(model.count_params())
+    print("Model params:", model.count_params())
 
     model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
 
+def sum_count_map(m, ef=ef):
+    pred = np.asarray([[np.sum(p)/ef**2 for p in pred]])
+    return pred
 
 TRAIN=False
 
 if TRAIN:
+    batch_size = 1
+    epochs = 5
+
     model = build_model()
     hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
                     validation_data = (np_dataset_x_valid, np_dataset_y_valid))
 
+    pred = model.predict(np_dataset_x_test, batch_size=1)
+    preds = sum_count_map(pred)
+    print(preds)
+    
     model.save('model.h5')
 
 else:
@@ -223,8 +229,8 @@ else:
     model = keras.models.load_model('model.h5')
 
     pred = model.predict(np_dataset_x_test, batch_size = batch_size, verbose = 0)
-    pred = np.asarray([np.sum(p)/ef**2 for p in pred])
-    print(pred.shape)
-    print(pred)
+    preds = sum_count_map(pred)
+    print(preds.shape)
+    print(preds)
     print(np_dataset_c_test.shape)
     print(np_dataset_c_test)
