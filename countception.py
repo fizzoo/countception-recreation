@@ -203,6 +203,8 @@ def build_model():
 
     model.compile(optimizer = 'adam', loss = 'hinge', metrics = ['accuracy'], learning_rate = 0.005)
 
+    return model
+
 def sum_count_map(m, ef=ef):
     return np.asarray([[np.sum(p)/ef**2 for p in m]])
 
