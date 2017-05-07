@@ -156,7 +156,7 @@ def ConvFactory(filters, kernel_size, padding, inp, padding_type='valid', activa
     padded = ZeroPadding2D(padding)(inp)
     conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type)(padded)
     activated = activation(conv)
-    bn = BatchNormalization(axis=1)(activated)
+    bn = BatchNormalization(axis=3)(activated)
     return bn
 
 def SimpleFactory(ch_1x1, ch_3x3, inp):
