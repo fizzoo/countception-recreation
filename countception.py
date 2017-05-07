@@ -229,8 +229,10 @@ if TRAIN:
     epochs = 1
 
     model = build_model()
+
+    checkpointer = ModelCheckpoint(filepath="model-cp.{epoch:02d}-{val_loss:.2f}.h5", verbose=1, period=10, save_weights_only=True)
     hist = model.fit(np_dataset_x_train, np_dataset_y_train, epochs=epochs, batch_size = batch_size,
-                    validation_data = (np_dataset_x_valid, np_dataset_y_valid))
+                     validation_data = (np_dataset_x_valid, np_dataset_y_valid), callbacks=[checkpointer])
 
     model.save_weights('model.h5')
 
