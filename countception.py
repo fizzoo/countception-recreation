@@ -250,3 +250,8 @@ tests = np.concatenate(np_dataset_c_test)
 order = np.argsort(tests)
 print(preds[order])
 print(tests[order])
+
+
+print('!'*40)
+print("Test MSE:", np.mean((preds-tests)**2))
+print('!'*40)
