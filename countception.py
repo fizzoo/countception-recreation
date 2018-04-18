@@ -149,9 +149,9 @@ np_dataset_y_valid = np_dataset_y[n:2*n]
 np_dataset_c_valid = np_dataset_c[n:2*n]
 print("np_dataset_x_valid", len(np_dataset_x_valid))
 
-np_dataset_x_test = np_dataset_x[100:]
-np_dataset_y_test = np_dataset_y[100:]
-np_dataset_c_test = np_dataset_c[100:]
+np_dataset_x_test = np_dataset_x[-100:]
+np_dataset_y_test = np_dataset_y[-100:]
+np_dataset_c_test = np_dataset_c[-100:]
 print("np_dataset_x_test", len(np_dataset_x_test))
 print(np_dataset_x_train [:4,0].shape)
 
