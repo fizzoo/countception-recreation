@@ -254,4 +254,5 @@ print(tests[order])
 
 print('!'*40)
 print("Test MSE:", np.mean((preds-tests)**2))
+print("Test MAE:", np.mean(np.abs(preds-tests)))
 print('!'*40)
