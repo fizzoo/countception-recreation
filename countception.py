@@ -123,7 +123,6 @@ np_dataset = np.asarray(dataset)
 
 random.shuffle(np_dataset)
 
-# TODO: KANSKE SKA CASTAS TILL FLOAT !!!!!!
 np_dataset = np.rollaxis(np_dataset,1,0)
 np_dataset_x = np.asarray([np.transpose(np.asarray([n]), (1,2,0)) for n in np_dataset[0]])
 np_dataset_y = np.asarray([np.transpose(n, (1,2,0)) for n in np_dataset[1]])
