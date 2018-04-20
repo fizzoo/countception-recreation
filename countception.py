@@ -20,6 +20,11 @@ import os
 import random
 
 scale = 1
+# Note: if you edit patch_size, you probably need to manually edit the
+# model itself.  Simplest is to modify net3 and net8 since they have a
+# non-trivial kernel size already, ensuring that net3s kernel size +
+# net8s kernel size == patch_size should make it run correctly (at
+# least for default values on other params).
 patch_size = 32
 framesize = 256
 noutputs = 1
