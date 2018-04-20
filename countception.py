@@ -155,12 +155,12 @@ print(np_dataset_x_train [:4,0].shape)
 
 # Keras stuff
 
-def ConvFactory(filters, kernel_size, padding, inp, name, padding_type='valid'):
+def ConvFactory(filters, kernel_size, padding, inp, name, padding_type='valid', stride=1):
     if padding != 0:
         padded = ZeroPadding2D(padding)(inp)
     else:
         padded = inp
-    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, name=name+"_conv")(padded)
+    conv = Conv2D(filters=filters, kernel_size=kernel_size, padding=padding_type, name=name+"_conv", strides=stride)(padded)
     activated = LeakyReLU(0.01)(conv)
     bn = BatchNormalization(name=name+"_bn")(activated)
     return bn
@@ -200,8 +200,8 @@ def build_model():
     print("net:", net9.shape)
     net10 = ConvFactory(64, 1, 0, net9, "net10")
     print("net:", net10.shape)
-    # net11 = ConvFactory(1, 1, 0, net10, "net11")
-    final = Conv2D(1, 1, name="final")(net10)
+    final = ConvFactory(1, 1, 0, net10, "net11", stride=stride)
+    # final = Conv2D(1, 1, stride=stride, name="final")(net10)
     print("net:", final.shape)
 
 
