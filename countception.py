@@ -25,7 +25,6 @@ framesize = 256
 noutputs = 1
 nsamples = 32
 stride = 1
-ef = (patch_size/stride)**2
 
 paramfilename = str(scale) + "-" + str(patch_size) + "-cell2_cell_data.p"
 datasetfilename = str(scale) + "-" + str(patch_size) + "-" + str(framesize) + "-" + str(stride) + "-cell2-dataset.p"
@@ -214,7 +213,7 @@ def build_model():
 
     return model
 
-def sum_count_map(m, ef=ef):
+def sum_count_map(m, ef=(patch_size/stride)**2):
     return np.asarray([np.sum(p)/ef for p in m])
 
 def plot_map(m, fil):
